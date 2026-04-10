@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Booking Chatbot</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      overflow: hidden;
+      color: #f4f4f9;
+    }
+
+    /* Background blur */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://images.pexels.com/photos/1655901/pexels-photo-1655901.jpeg?cs=srgb&dl=pexels-anton-atanasov-1655901.jpg&fm=jpg') no-repeat center center fixed;
+      background-size: cover;
+      filter: blur(6px);
+      z-index: -1;
+    }
+
+    /* Navbar */
+    .nav {
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(0,0,0,0.6);
+      padding: 0 20px;
+      color: #FFD700;
+      position: sticky;
+      top: 0;
+    }
+    .nav a {
+      color: #FFD700;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+    .nav a:hover {
+      text-decoration: underline;
+    }
+    .welcome {
+  text-align: center;
+  margin-top: 40px;   /* controls distance from navbar */
+  margin-bottom: 20px;
+  color: #e3c54a;     /* gold accent */
+  font-size: 1.5rem;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+    /* Floating chat widget */
+    .chat {
+      width: 300px;
+      height: 350px;
+      border: 2px solid #FFD700;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(40,40,40,0.9);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0px 0px 20px rgba(255,215,0,0.5);
+    }
+    .chat-header {
+      background-color: #6f6f6b;
+      color: #e6e1e1;
+      text-align: center;
+      padding: 8px;
+      font-weight: bold;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .user-message {
+      text-align: right;
+      margin: 5px;
+      background-color: #0d0f0f;
+      padding: 5px;
+      border-radius: 5px;
+      color: white;
+    }
+    .bot-message {
+      text-align: left;
+      margin: 5px;
+      background-color: #dbdedb;
+      padding: 5px;
+      border-radius: 5px;
+      color: rgb(18, 17, 17);
+    }
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+    }
+    .chat-input button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border: none;
+      background-color: #e3cb43;
+      color: black;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .chat-input button:hover {
+      background-color: #e6c200;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="nav">
+    <h2>🏨 MyHotel</h2>
+    <
+    <div>
+      <a href="#">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/locations.html">Destinations</a>
+    </div>
+  </div>
+
+   <div class="welcome">
+    <h1>Welcome to our Hotel website</h1>
+  </div>
+
+  <!-- Floating Chat Widget -->
+  <div class="chat">
+    <div class="chat-header">Hotel Chatbot</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input id="input" type="text" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatBox = document.getElementById('chat-messages');
+
+      // Show user message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'user-message';
+      userDiv.textContent = message;
+      chatBox.appendChild(userDiv);
+
+      input.value = '';
+      input.focus();
+
+      // Show temporary "typing..."
+      const botDiv = document.createElement('div');
+      botDiv.className = 'bot-message';
+      botDiv.textContent = 'Hotel is typing...';
+      chatBox.appendChild(botDiv);
+
+      // Send to Flask backend
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        botDiv.textContent = data.response;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    }
+  </script>
+</body>
+</html>
